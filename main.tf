@@ -12,6 +12,7 @@ provider "azurerm" {
   features {
     key_vault {
       purge_soft_delete_on_destroy = true
+      recover_soft_deleted_key_vaults = true
     }
   }
 }
@@ -36,6 +37,12 @@ resource "azurerm_storage_account" "storageacct" {
     default_action = "Deny"
     ip_rules       = [var.mypublicip]
   }
+}
+
+resource "azurerm_storage_share" "storageshare" {
+    name                    = "${var.prefix}storageshare"
+    storage_account_name    = azurerm_storage_account.storageacct.name
+    quota                   = 1
 }
 
 resource "azurerm_key_vault" "keyvault" {
@@ -67,7 +74,7 @@ resource "azurerm_key_vault_access_policy" "keyvaultaccesspolicy" {
     "get",
   ]
 }
-
+/*
 resource "azurerm_sql_server" "sqlserver" {
   name                         = "${var.prefix}sqlserver"
   resource_group_name          = azurerm_resource_group.resourcegroup.name
@@ -82,4 +89,20 @@ resource "azurerm_sql_database" "sqldatabase" {
   resource_group_name = azurerm_resource_group.resourcegroup.name
   location            = var.location
   server_name         = azurerm_sql_server.sqlserver.name
+}
+*/
+resource "null_resource" "uploadfile" {
+    provisioner "local-exec" {
+        command = <<-EOT
+        $storageAcct = Get-AzStorageAccount -ResourceGroupName "${azurerm_resource_group.resourcegroup.name}" -Name "${azurerm_storage_account.storageacct.name}"
+        Set-AzStorageFileContent `
+        -Context $storageAcct.Context `
+        -ShareName "${azurerm_storage_share.storageshare.name}" `
+        -Source ".\data\loan_data.csv" `
+        -Path "loan_data.csv"
+
+        EOT
+
+        interpreter = ["PowerShell", "-Command"]
+    }
 }
