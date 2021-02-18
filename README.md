@@ -2,7 +2,7 @@
 
 ## Description
 
-This project is envisioned to hold my thoughts & experiments as I develop a proof-of-concept for financial model execution in Microsoft Azure.
+This project is a proof-of-concept for financial model execution in Microsoft Azure: data ingestion, transformation, staging, analytics, and reporting.
 
 ## Who Am I? 
 
@@ -27,9 +27,24 @@ choco install terraform
 Invoke-WebRequest -Uri https://aka.ms/installazurecliwindows -OutFile .\AzureCLI.msi; Start-Process msiexec.exe -Wait -ArgumentList '/I AzureCLI.msi /quiet'; rm .\AzureCLI.msi
 ```
 
+* Install Az module from a Powershell prompt (run as administrator):
+
+```powershell
+if ($PSVersionTable.PSEdition -eq 'Desktop' -and (Get-Module -Name AzureRM -ListAvailable)) {
+    Write-Warning -Message ('Az module not installed. Having both the AzureRM and ' +
+      'Az modules installed at the same time is not supported.')
+} else {
+    Install-Module -Name Az -AllowClobber -Scope CurrentUser
+}
+```
+
+* Install [Azure Storage Explorer](https://azure.microsoft.com/en-us/features/storage-explorer/) or use the web version in the Azure console instead
+
 * Open a VS Code terminal and fix your PATH by running `setup.bat`
 
 * Login to the Azure CLI by running `az login`
+
+* Login to Azure via Powershell by running `Connect-AzAccount`
 
 * Edit terraform settings in `variables.tf`
     * prefix.default should be univerally unique (i.e. across all Azure users)
@@ -38,20 +53,4 @@ Invoke-WebRequest -Uri https://aka.ms/installazurecliwindows -OutFile .\AzureCLI
 
 ## To Do
 
-* Create a new Azure account
-* Create a storage account
-    * ADLS
-    * Where do we put our dummy input CSV files?
-* Pushing files from public internet to datafactory
-    * FTP?
-    * Events when files arrive?
-* Create a data factory manually
-    * Create a data factory using Terraform
-
-
-|Component|Notes|
-|---|---|
-|Data Factory|- Requires Git<br>- Need to figure out how to use a custom key|
-|Key Vault||
-|DevOps|- Do we need this if we're using Github?|
-|Users||
+Moved to [Github Projects](https://github.com/ketanpatelcto/azure-model-execution/projects/1)
